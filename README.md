@@ -2,6 +2,7 @@
 
 This repository contains simple CUDA programs to demonstrates basic CUDA concepts such as kernel launches, memory management, and GPU timing. The included programs are,
 1. Element-wise addition of two large square matrices.
+2. Element-wise multiplication of two square matrices.
 
 ## Features
 
@@ -10,6 +11,13 @@ This repository contains simple CUDA programs to demonstrates basic CUDA concept
 - Measures and reports the kernel execution time.
 - Uses a 2D grid and block structure for thread organization.
 - Handles memory allocation and data transfers between host (CPU) and device (GPU).
+
+### Matrix Multiplication
+- Multiplies two 512 × 512 matrices in parallel on the GPU.
+- Initializes matrix `A` with 1.0 and matrix `B` with 2.0 for predictable results.
+- Measures and reports the kernel execution time using CUDA events.
+- Uses a 2D grid and block structure for thread organization.
+- Verifies results by printing a 3 × 3 subset of the output matrix and the expected value.
 
 ## Requirements
 - **NVIDIA CUDA Toolkit** (version 12.4 or later recommended).
@@ -36,15 +44,18 @@ Run the compiled executable:
 ```bash
 ./<file>
 ```
+### Matrix Addition
 The program will:
 1. Initialize two 10000x10000 matrices with random float values.
 2. Perform matrix addition on the GPU.
 3. Output the execution time of the CUDA kernel in milliseconds.
 
-Example output:
-```
-Non-optimized time taken for matrix addition on GPU: 12.345 ms
-```
+### Matrix Multiplication
+The program will:
+1. Initialize two 512 × 512 matrices (`A` with 1.0, `B` with 2.0).
+2. Perform matrix multiplication on the GPU.
+3. Print a 3 × 3 subset of the result matrix `C` and the expected value (1024.0).
+4. Output the execution time of the CUDA kernel in milliseconds.
 
 ## Code Structure
 
@@ -59,9 +70,23 @@ Non-optimized time taken for matrix addition on GPU: 12.345 ms
     - Launches the CUDA kernel with a 625x625 grid of 16x16 thread blocks.
     - Measures execution time using CUDA events.
     - Copies the result back to the host and frees memory.
+    - Frees host and device memory.
+
+### Matrix Multiplication
+- **File**: `cuda_mat_mul.cu`
+- **Key Components**:
+  - **Kernel**: `matmul` - Performs matrix multiplication using a 2D thread grid, computing one element of `C` per thread.
+  - **Main Function**:
+    - Initializes matrices using `std::vector` for host memory.
+    - Allocates device memory with `cudaMalloc`.
+    - Copies data to the GPU using `cudaMemcpy`.
+    - Launches the `matmul` kernel with a 32 × 32 grid of 16 × 16 thread blocks.
+    - Measures execution time using CUDA events.
+    - Copies the result back to the host and prints sample results.
+    - Frees host and device memory.
 
 ## Notes
 - The implementations are non-optimized for simplicity, focusing on demonstrating CUDA basics.
 - Potential optimizations include using shared memory, coalesced memory access, or tuning block sizes.
 - No explicit error checking is included. If needed, add checks for CUDA API calls (`cudaGetLastError`).
-- The results is not verified for correctness.
+- The results is not verified for correctness in `cuda_mat_add.cu`.
